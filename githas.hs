@@ -1,10 +1,9 @@
+--Haskell の手習いです。
+--題材はは完全数とメルセンヌ素数です。
+--勉強メモです
 
-Haskell の手習いです。
-題材はは完全数とメルセンヌ素数です。
-コードの作法はまだ自信はありませんが。
-
+--完全数とメルセンヌ素数について、haskell で試してみました。
 {-
-完全数とメルセンヌ素数について、haskell で試してみました。
 ◎　完全数とは
 正の整数ｎ　について、約数の総和が
 ｎの２倍となるとき　ｎ　を完全数という。
@@ -31,57 +30,54 @@ Haskell の手習いです。
 ｎ＝４　のときは　2^(4-1)*(2^4 -1)=120 　
 n=2 n=3 のときは完全数となります。
 n=4 のときは 2^4 -1=15 がメルセンヌ素数ではないので120 は完全数とはなりません。
+-}
 
-◎haskell を実行して確かめてみます。
-<pre>
+-- Haskell を実行して確かめてみます。
 -- ライブラリのインポート
 -- isPrime の利用
-import Data.Numbers.Primes
+-- import Data.Numbers.Primes
 
 -- 約数のリストを求める関数
 factors :: Int -> [Int]
 factors n = [x | x <- [1..n], n `mod` x == 0]
+
 -- 素数かどうかの判定関数
 --（約数が　１とその数自身 n の２個のみの場合は素数）
 myisprime :: Int -> Bool
 myisprime n = factors n == [1, n]
+
 -- メルセンヌ数を作る関数
 mer :: Int -> Int
 mer x = 2^x - 1
+
 -- メルセンヌ数のうち素数であるものを取り出す関数
 -- 素数である場合はその数を、そうでない場合は　0
 merprime :: Int -> Int
-merprime x = if isPrime (mer x) then (mer x) else 0 
+merprime x = if myisprime (mer x) then (mer x) else 0 
+
 -- 完全数であるかどうかの判定関数
 -- 約数のリストの総和が　ｎ　×　２　に等しいかどうか
 isPerfect :: Int -> Bool
 isPerfect x = sum (factors x) == 2 * x
+
 -- メルセンヌ数のうち素数であるものから完全数をつくる
 -- 素数でないメルセンヌ数の場合は　0 を返す
 perfect :: Int -> Int
-perfect x = if isPrime (mer x) then 2^(x - 1)* (2^x - 1) else 0
-</pre>
-<pre>
-main = do print $ isPrime 5　　　   -- true 
-          print $ primeFactors 100  -- [2 2 5 5]
-          print $ take 25 primes    
-          -- [2 3 5 7 11 ・・97]
-          print $ map isPrime [1 ..10]
+perfect x = if myisprime (mer x) then 2^(x - 1)* (2^x - 1) else 0
+
+main = do print $ myisprime 5　　　   -- true 
+          print $ map myisprime [1 ..10]
           -- [False,True,True,False,True,False,True,False,False,False]
           print $ [1..10]
           -- [1,2,3,4,5,6,7,8,9,10]
-          print $ filter isPrime [1..10] 
+          print $ filter myisprime [1..10] 
           -- [2 3 5 7]
           print $ map mer [1..10]
           -- [1,3,7,15,31,63,127,255,511,1023]-
           print $ map merprime [1..10]
           -- [0,3,7,0,31,0,127,0,0,0]
-          print $ filter isPrime (map mer [1..10])
+          print $ filter myisprime (map mer [1..10])
           -- [3,7,31,127]
-          print $ factors 28
-          -- [1,2,4,7,14,28]
-          print $ myisprime 7
-          -- True
           print $ sum (factors 28)
           --  56
           print $ isPerfect 28 
@@ -92,27 +88,29 @@ main = do print $ isPrime 5　　　   -- true
           -- [1,2,4,8,16,31,62,124,248,496]
           print $ factors 8128
           -- [1,2,4,8,16,32,64,127,254,508,1016,2032,4064,8128]
-</pre>
-{-約数を求める関数　factors と
+{-
+約数を求める関数　factors と
 素数かどうか判定する関数　myisprime は以下を参考にし、ました・
     http://shin.hateblo.jp/entry/2012/06/25/003225
--- 約数（ただし効率は悪い）
+ 約数（ただし効率は悪い）
 factors :: Int -> [Int]
 factors n = [x | x <- [1..n], n `mod` x == 0]
 
--- 素数かどうか判定
+素数かどうか判定
 myprime :: Int -> Bool
 myprime n = factors n == [1, n]
+-}
 
 {-
 友愛数を求めるプログラムを書いていて、完全数と友愛数の関係について新ためて気づいたことをまとめてみました。
 ◎友愛数とは、異なる 2 つの自然数の組で、自分自身を除いた約数の和が、互いに他方と等しくなるような数をいう。 
 最小の友愛数の組は (220, 284) である。 
 220 の自分自身を除いた約数は、1, 2, 4, 5, 10, 11, 20, 22, 44, 55, 110 で、和は 284 となる。一方、284 の自分自身を除いた約数は、1, 2, 4, 71, 142 で、和は 220 である。
-
-◎完全数と友愛数を求めるプログラム
 -}
-<pre>
+
+{-
+-- 完全数と友愛数を求めるプログラム
+
 -- 約数のリストを求める関数
 factors :: Int -> [Int]
 factors n = [x | x <- [1..n], n `mod` x == 0]
@@ -121,11 +119,10 @@ factors n = [x | x <- [1..n], n `mod` x == 0]
 -- 約数に　1 は含めるが　その数自身ｎは含めない
 wa :: Int -> Int
 wa n = sum (factors n) - n
-</pre>
 
 notzero :: Int -> Bool
 notzero n =  n /= 0 
-<pre>
+
 -- 完全数かどうか判定
 -- 完全数ならばその数自身を返す
 -- 完全数でないならば　0 を返す
@@ -137,18 +134,17 @@ isPerfect  n = if (wa n == n) then n else 0
 -- 友愛数でないならば　0 を返す
 isFriend :: Int -> Int
 isFriend n = if (wa (wa n) == n) then n else 0 
-</pre>
 
 -- 友達が２人いる場合
 isFriendtew :: Int -> Int
 isFriendtew n = if (wa (wa (wa (wa n)) )== n) then n else 0 
-<pre>
+
 main = do print $ filter notzero (map isPerfect [1..20000])   
           -- [6,28,496,8128]
           print $ filter notzero (map isFriend [1..20000])     
           print $ map wa (filter notzero (map isFriend [1..20000]))     
           print $ filter notzero (map isFriendtew [1..20000])
-</pre>
+-}
 
 {-
 [6,28,220,284,496,1184,1210,2620,2924,5020,5564,6232,6368,8128,10744,10856,12285,14595,17296,18416]
